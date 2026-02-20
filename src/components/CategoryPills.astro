@@ -1,0 +1,78 @@
+---
+interface Props {
+  categories: string[];
+}
+
+const { categories } = Astro.props;
+---
+
+<div class="category-bar">
+  <span class="category-pill active" data-filter="All">All</span>
+  {categories.map((cat) => (
+    <span class="category-pill" data-filter={cat}>{cat}</span>
+  ))}
+</div>
+
+<style>
+  .category-bar {
+    max-width: 900px;
+    margin: 0 auto 48px;
+    padding: 0 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .category-pill {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface-alt);
+    color: var(--ink);
+    padding: 8px 24px;
+    border-radius: 100px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .category-pill:hover {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+
+  .category-pill.active {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+
+  @media (max-width: 720px) {
+    .category-bar { padding: 0 24px; margin-bottom: 32px; }
+  }
+</style>
+
+<script>
+  const pills = document.querySelectorAll('.category-pill');
+  const cards = document.querySelectorAll('.post-card');
+
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      pills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      const filter = pill.getAttribute('data-filter');
+
+      cards.forEach((card) => {
+        if (filter === 'All' || card.getAttribute('data-category') === filter) {
+          (card as HTMLElement).style.display = '';
+        } else {
+          (card as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

@@ -1,0 +1,18 @@
+---
+interface Props {
+  name: string;
+  initial: string;
+  bio: string;
+}
+
+const { name, initial, bio } = Astro.props;
+---
+
+<div class="author-card">
+  <div class="avatar">{initial}</div>
+  <div class="info">
+    <div class="name">{name}</div>
+    <div class="bio">{bio}</div>
+    <button class="follow-btn">Follow</button>
+  </div>
+</div>

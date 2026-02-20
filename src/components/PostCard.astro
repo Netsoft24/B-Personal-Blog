@@ -1,0 +1,127 @@
+---
+interface Props {
+  href: string;
+  thumbnail: { src: string; alt: string };
+  category: string;
+  title: string;
+  excerpt: string;
+  authorName: string;
+  authorInitial: string;
+  date: string;
+  readTime: string;
+}
+
+const { href, thumbnail, category, title, excerpt, authorName, authorInitial, date, readTime } = Astro.props;
+---
+
+<a href={href} class="post-card" data-category={category}>
+  <img class="thumbnail" src={thumbnail.src} alt={thumbnail.alt}>
+  <div class="card-body">
+    <span class="card-category">{category}</span>
+    <h2>{title}</h2>
+    <p class="excerpt">{excerpt}</p>
+    <div class="card-author">
+      <div class="card-avatar">{authorInitial}</div>
+      <div>
+        <div class="card-author-name">{authorName}</div>
+        <div class="card-author-meta">{date} <span class="dot"></span> {readTime}</div>
+      </div>
+    </div>
+  </div>
+</a>
+
+<style>
+  .post-card {
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--border);
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(26, 26, 46, 0.08);
+  }
+
+  .post-card .thumbnail {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+
+  .post-card .card-body {
+    padding: 24px;
+  }
+
+  .post-card .card-category {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(232, 86, 58, 0.08);
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+
+  .post-card h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .post-card .excerpt {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .post-card .card-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .post-card .card-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #f4a261);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .post-card .card-author-name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .post-card .card-author-meta {
+    color: var(--muted);
+  }
+
+  .post-card .card-author-meta .dot {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 8px;
+  }
+</style>

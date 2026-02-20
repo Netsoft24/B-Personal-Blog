@@ -1,0 +1,16 @@
+---
+interface Props {
+  activePage?: 'essays' | 'about';
+}
+
+const { activePage } = Astro.props;
+---
+
+<nav>
+  <a href="/" class="logo">the slow dispatch</a>
+  <ul class="nav-links">
+    <li><a href="/" class:list={[{ active: activePage === 'essays' }]}>Essays</a></li>
+    <li><a href="/about" class:list={[{ active: activePage === 'about' }]}>About</a></li>
+    <li><a href="#">Subscribe</a></li>
+  </ul>
+</nav>

@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import CategoryPills from '../components/CategoryPills.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const categories = [...new Set(posts.map((p) => p.data.category))];
+---
+
+<BaseLayout title="The Slow Dispatch — A Blog About Doing Less, Better" activePage="essays">
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>Thoughts on living<br>&amp; working <em>with less</em></h1>
+    <p class="tagline">Essays on mindful design, slow productivity, and the beauty of doing fewer things better.</p>
+  </header>
+
+  <!-- Category filter -->
+  <CategoryPills categories={categories} />
+
+  <!-- Post grid -->
+  <div class="post-grid">
+    {posts.map((post) => {
+      const formattedDate = post.data.date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+      return (
+        <PostCard
+          href={`/posts/${post.id.replace(/\.md$/, '')}`}
+          thumbnail={post.data.thumbnail}
+          category={post.data.category}
+          title={post.data.title}
+          excerpt={post.data.subtitle}
+          authorName={post.data.author.name}
+          authorInitial={post.data.author.initial}
+          date={formattedDate}
+          readTime={post.data.readTime}
+        />
+      );
+    })}
+  </div>
+
+</BaseLayout>
+
+<style>
+  /* ── Hero section ── */
+  .hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 32px 48px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero .tagline {
+    font-size: 20px;
+    color: var(--muted);
+    max-width: 536px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Post grid ── */
+  .post-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  /* ── Footer max-width override ── */
+  :global(footer) {
+    max-width: 1200px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 720px) {
+    .hero { padding: 48px 24px 32px; }
+    .hero h1 { font-size: 36px; }
+    .hero .tagline { font-size: 17px; }
+    .post-grid {
+      grid-template-columns: 1fr;
+      padding: 0 24px 64px;
+      gap: 24px;
+    }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  activePage?: 'essays' | 'about';
+  extraFonts?: string;
+}
+
+const { title, activePage, extraFonts } = Astro.props;
+
+const baseFonts = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href={baseFonts} rel="stylesheet">
+  {extraFonts && <link href={extraFonts} rel="stylesheet">}
+  <slot name="head" />
+</head>
+<body>
+  <slot name="before-nav" />
+  <Nav activePage={activePage} />
+  <slot />
+  <Footer />
+</body>
+</html>

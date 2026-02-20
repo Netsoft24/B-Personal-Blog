@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Art of Doing Less — And Why It Matters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #1a1a2e;
+      --muted: #6b7094;
+      --accent: #e8563a;
+      --surface: #faf9f7;
+      --surface-alt: #f0eeea;
+      --border: #e2dfd9;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--surface);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── Top nav ── */
+    nav {
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(250, 249, 247, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-style: italic;
+      color: var(--ink);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    nav .logo:hover { color: var(--accent); }
+
+    nav .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    nav .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    nav .nav-links a:hover { color: var(--ink); }
+
+    /* ── Hero section ── */
+    .hero {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 80px 32px 0;
+      text-align: center;
+    }
+
+    .hero .category {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(232, 86, 58, 0.08);
+      padding: 8px 16px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      color: var(--ink);
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero .subtitle {
+      font-size: 20px;
+      color: var(--muted);
+      max-width: 536px;
+      margin: 0 auto 48px;
+      line-height: 1.6;
+    }
+
+    /* ── Author row ── */
+    .author-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 56px;
+    }
+
+    .author-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #f4a261);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .author-info {
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .author-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .author-meta {
+      color: var(--muted);
+    }
+
+    .author-meta .dot {
+      display: inline-block;
+      width: 3px;
+      height: 3px;
+      background: var(--muted);
+      border-radius: 50%;
+      vertical-align: middle;
+      margin: 0 8px;
+    }
+
+    /* ── Hero image ── */
+    .hero-image {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .hero-image img {
+      width: 100%;
+      display: block;
+      border-radius: var(--radius);
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    .hero-image figcaption {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: right;
+      margin-top: 8px;
+      padding-right: 4px;
+      font-style: italic;
+    }
+
+    /* ── Article body ── */
+    article {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 64px 32px 80px;
+    }
+
+    article p {
+      font-size: 18px;
+      margin-bottom: 32px;
+      color: var(--ink);
+    }
+
+/* ── In-article image ── */
+    .article-image {
+      margin: 48px -32px;
+    }
+
+    .article-image img {
+      width: 100%;
+      display: block;
+      border-radius: var(--radius);
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    .article-image figcaption {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── Section headings ── */
+    article h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 32px;
+      font-weight: 400;
+      margin-top: 56px;
+      margin-bottom: 24px;
+      line-height: 1.2;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    article h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    /* ── Blockquote ── */
+    article blockquote {
+      margin: 48px 0;
+      padding: 32px 32px;
+      background: var(--surface-alt);
+      border-radius: var(--radius);
+      position: relative;
+    }
+
+    article blockquote::before {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 80px;
+      color: var(--accent);
+      position: absolute;
+      top: -8px;
+      left: 24px;
+      line-height: 1;
+      opacity: 0.3;
+    }
+
+    article blockquote p {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 0;
+      color: var(--ink);
+    }
+
+    article blockquote cite {
+      display: block;
+      margin-top: 16px;
+      font-family: 'Inter', sans-serif;
+      font-style: normal;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    /* ── Ordered list ── */
+    article ol {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 32px;
+      counter-reset: item;
+    }
+
+    article ol li {
+      font-size: 18px;
+      margin-bottom: 24px;
+      padding-left: 48px;
+      position: relative;
+      counter-increment: item;
+    }
+
+    article ol li::before {
+      content: counter(item, decimal-leading-zero);
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.4;
+    }
+
+    /* ── Code block ── */
+    .code-block {
+      margin: 40px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #1a1a2e;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px;
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .code-lang {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+    }
+
+    .code-copy {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .code-copy:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .code-block pre {
+      padding: 24px;
+      margin: 0;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #e2dfd9;
+    }
+
+    /* ── Separator ── */
+    article hr {
+      border: none;
+      margin: 56px auto;
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    /* ── Emphasis styling ── */
+    article em {
+      font-style: italic;
+      color: var(--accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.05em;
+    }
+
+    /* ── Links ── */
+    article a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(232, 86, 58, 0.3);
+      transition: border-color 0.2s;
+    }
+
+    article a:hover {
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Tags ── */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .tag {
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--surface-alt);
+      color: var(--ink);
+      padding: 8px 16px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .tag:hover {
+      background: var(--ink);
+      color: var(--surface);
+      border-color: var(--ink);
+    }
+
+    /* ── Bottom author card ── */
+    .author-card {
+      margin-top: 56px;
+      padding: 40px 32px;
+      background: var(--surface-alt);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .author-card .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #f4a261);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 28px;
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .author-card .info .name {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .author-card .info .bio {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      max-width: 360px;
+    }
+
+    .follow-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--ink);
+      color: var(--surface);
+      border: none;
+      border-radius: 100px;
+      padding: 8px 24px;
+      cursor: pointer;
+      transition: all 0.25s;
+      letter-spacing: 0.02em;
+    }
+
+    .follow-btn:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(232, 86, 58, 0.25);
+    }
+
+    /* ── Toolbar (reactions) ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 24px 0;
+      margin-bottom: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .toolbar-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+      padding: 8px 16px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+
+    .toolbar-action:hover {
+      background: var(--surface-alt);
+      color: var(--ink);
+    }
+
+    .toolbar-action svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 48px 32px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ── Scroll progress bar ── */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--accent);
+      z-index: 100;
+      transition: width 0.1s linear;
+      width: 0%;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      .hero { padding: 48px 24px 0; }
+      .hero h1 { font-size: 36px; }
+      .hero .subtitle { font-size: 17px; }
+      .hero-image { padding: 0 24px; }
+      article { padding: 40px 24px 64px; }
+      article p, article ol li { font-size: 17px; }
+      article h2 { font-size: 24px; }
+      article blockquote { padding: 24px; }
+      .author-card { padding: 32px 24px; }
+      nav .nav-links { gap: 16px; }
+      nav .nav-links a { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Progress bar -->
+  <div class="progress-bar" id="progress"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="index.html" class="logo">the slow dispatch</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Essays</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="#">Subscribe</a></li>
+    </ul>
+  </nav>
+
+<!-- Hero Section -->
+  <header class="hero">
+    <span class="category">Mindful Design</span>
+    <h1>The Art of Doing Less &mdash;<br>And Why <em>It Matters</em></h1>
+    <p class="subtitle">A quiet case for subtraction in a world addicted to more.</p>
+
+    <div class="author-row">
+      <div class="author-avatar">B</div>
+      <div class="author-info">
+        <div class="author-name">Brandon Ellis</div>
+        <div class="author-meta">Feb 20, 2026 <span class="dot"></span> 5 min read</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Image -->
+  <figure class="hero-image">
+    <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=80" alt="A clean desk with a notebook and coffee">
+    <figcaption>Photo by Andrew Neel / Unsplash</figcaption>
+  </figure>
+
+  <article>
+
+    <!-- Body Content -->
+    <p>
+      We live in an era of accumulation. More tabs, more tasks, more notifications. Somewhere along the way, we began equating busyness with meaning, and volume with value. But what if the most productive thing you could do today was to stop?
+    </p>
+
+    <h2>The Paradox of Choice</h2>
+    <p>
+      Barry Schwartz wrote about it decades ago, but the thesis has only grown sharper with time: the more options we have, the less capable we are of choosing any of them well. Simplicity isn't a retreat from ambition&mdash;it's the prerequisite for it.
+    </p>
+
+    <blockquote>
+      <p>
+        Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.
+      </p>
+      <cite>&mdash; Antoine de Saint-Exup&eacute;ry</cite>
+    </blockquote>
+
+    <p>
+      Consider how the best tools disappear into the work. A well-designed chair doesn't announce itself; it simply supports you. The same principle applies to how we structure our days, our projects, our thinking.
+    </p>
+
+    <figure class="article-image">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1000&q=80" alt="A serene mountain landscape with soft morning light">
+      <figcaption>Sometimes the best view comes from stepping back &mdash; Photo by Bailey Zindel / Unsplash</figcaption>
+    </figure>
+
+    <h2>Three Rules for Subtraction</h2>
+    <ol>
+      <li><strong>Remove before you add.</strong> When something feels off, the instinct is to layer on a fix. Resist it. Ask what can be taken away first.</li>
+      <li><strong>Protect empty space.</strong> An open afternoon isn't wasted time. It's where your best ideas will find you.</li>
+      <li><strong>Let things be small.</strong> Not every project needs to scale. Not every idea needs a roadmap. Some of the best things stay exactly the size they started.</li>
+    </ol>
+
+    <p>
+      In code, the same philosophy applies. Here's a small function that embraces doing less:
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">JavaScript</span>
+        <button class="code-copy">Copy</button>
+      </div>
+      <pre><code>function simplify(tasks) {
+  return tasks
+    .filter(task =&gt; task.essential)
+    .sort((a, b) =&gt; a.priority - b.priority)
+    .slice(0, 3);
+}
+
+// Do less, but do it well.
+const today = simplify(myTasks);</code></pre>
+    </div>
+
+    <hr>
+
+    <p>
+      There's a Japanese concept called <em>ma</em>&mdash;the purposeful pause, the space between things that gives them meaning. A rest in music isn't silence; it's part of the composition. The gap between words on a page isn't emptiness; it's what makes reading possible.
+    </p>
+
+    <p>
+      Perhaps the real skill isn't doing more. It's learning what deserves your attention at all.
+    </p>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="toolbar-action">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>42</span>
+      </button>
+      <button class="toolbar-action">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Comments</span>
+      </button>
+      <button class="toolbar-action">
+        <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span>Save</span>
+      </button>
+      <button class="toolbar-action">
+        <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <span>Share</span>
+      </button>
+    </div>
+
+    <!-- Tags -->
+    <div class="tags">
+      <a href="#" class="tag">Minimalism</a>
+      <a href="#" class="tag">Productivity</a>
+      <a href="#" class="tag">Design</a>
+      <a href="#" class="tag">Self Improvement</a>
+    </div>
+
+    <!-- Author card -->
+    <div class="author-card">
+      <div class="avatar">B</div>
+      <div class="info">
+        <div class="name">Brandon Ellis</div>
+        <div class="bio">Writing about design, simplicity, and the things in between. Based in Portland.</div>
+        <button class="follow-btn">Follow</button>
+      </div>
+    </div>
+
+  </article>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2026 The Slow Dispatch. All rights reserved.
+  </footer>
+
+<script>
+    // Scroll progress bar
+    window.addEventListener('scroll', () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = (window.scrollY / docHeight) * 100;
+      document.getElementById('progress').style.width = scrolled + '%';
+    });
+  </script>
+
+</body>
+</html>

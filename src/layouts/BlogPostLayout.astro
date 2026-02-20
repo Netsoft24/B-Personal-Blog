@@ -1,0 +1,552 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ProgressBar from '../components/ProgressBar.astro';
+import Toolbar from '../components/Toolbar.astro';
+import AuthorCard from '../components/AuthorCard.astro';
+
+interface Props {
+  frontmatter: {
+    title: string;
+    titleHtml: string;
+    subtitle: string;
+    category: string;
+    date: Date;
+    readTime: string;
+    heroImage: { src: string; alt: string; caption: string };
+    tags: string[];
+    author: { name: string; initial: string; bio: string };
+  };
+}
+
+const { frontmatter } = Astro.props;
+const formattedDate = frontmatter.date.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+
+const extraFonts = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400&display=swap';
+---
+
+<BaseLayout title={frontmatter.title} extraFonts={extraFonts}>
+  <ProgressBar slot="before-nav" />
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <span class="category">{frontmatter.category}</span>
+    <h1 set:html={frontmatter.titleHtml} />
+    <p class="subtitle">{frontmatter.subtitle}</p>
+
+    <div class="author-row">
+      <div class="author-avatar">{frontmatter.author.initial}</div>
+      <div class="author-info">
+        <div class="author-name">{frontmatter.author.name}</div>
+        <div class="author-meta">{formattedDate} <span class="dot"></span> {frontmatter.readTime}</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Image -->
+  <figure class="hero-image">
+    <img src={frontmatter.heroImage.src} alt={frontmatter.heroImage.alt}>
+    <figcaption>{frontmatter.heroImage.caption}</figcaption>
+  </figure>
+
+  <article>
+    <slot />
+
+    <!-- Toolbar -->
+    <Toolbar />
+
+    <!-- Tags -->
+    <div class="tags">
+      {frontmatter.tags.map((tag) => (
+        <a href="#" class="tag">{tag}</a>
+      ))}
+    </div>
+
+    <!-- Author card -->
+    <AuthorCard
+      name={frontmatter.author.name}
+      initial={frontmatter.author.initial}
+      bio={frontmatter.author.bio}
+    />
+  </article>
+</BaseLayout>
+
+<style>
+  /* ── Hero section ── */
+  .hero {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 80px 32px 0;
+    text-align: center;
+  }
+
+  .hero .category {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(232, 86, 58, 0.08);
+    padding: 8px 16px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+
+  .hero h1 :global(em) {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero .subtitle {
+    font-size: 20px;
+    color: var(--muted);
+    max-width: 536px;
+    margin: 0 auto 48px;
+    line-height: 1.6;
+  }
+
+  /* ── Author row ── */
+  .author-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+
+  .author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #f4a261);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .author-info {
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .author-name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .author-meta {
+    color: var(--muted);
+  }
+
+  .author-meta .dot {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 8px;
+  }
+
+  /* ── Hero image ── */
+  .hero-image {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .hero-image img {
+    width: 100%;
+    display: block;
+    border-radius: var(--radius);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .hero-image figcaption {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 8px;
+    padding-right: 4px;
+    font-style: italic;
+  }
+
+  /* ── Article body ── */
+  article {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 64px 32px 80px;
+  }
+
+  article :global(p) {
+    font-size: 18px;
+    margin-bottom: 32px;
+    color: var(--ink);
+  }
+
+  /* ── In-article image ── */
+  article :global(.article-image) {
+    margin: 48px -32px;
+  }
+
+  article :global(.article-image img) {
+    width: 100%;
+    display: block;
+    border-radius: var(--radius);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  article :global(.article-image figcaption) {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ── Section headings ── */
+  article :global(h2) {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 32px;
+    font-weight: 400;
+    margin-top: 56px;
+    margin-bottom: 24px;
+    line-height: 1.2;
+    position: relative;
+    padding-left: 24px;
+  }
+
+  article :global(h2)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* ── Blockquote ── */
+  article :global(blockquote) {
+    margin: 48px 0;
+    padding: 32px 32px;
+    background: var(--surface-alt);
+    border-radius: var(--radius);
+    position: relative;
+  }
+
+  article :global(blockquote)::before {
+    content: '\201C';
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 80px;
+    color: var(--accent);
+    position: absolute;
+    top: -8px;
+    left: 24px;
+    line-height: 1;
+    opacity: 0.3;
+  }
+
+  article :global(blockquote p) {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 0;
+    color: var(--ink);
+  }
+
+  article :global(blockquote cite) {
+    display: block;
+    margin-top: 16px;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  /* ── Ordered list ── */
+  article :global(ol) {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 32px;
+    counter-reset: item;
+  }
+
+  article :global(ol li) {
+    font-size: 18px;
+    margin-bottom: 24px;
+    padding-left: 48px;
+    position: relative;
+    counter-increment: item;
+  }
+
+  article :global(ol li)::before {
+    content: counter(item, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1.4;
+  }
+
+  /* ── Code block ── */
+  article :global(.code-block) {
+    margin: 40px 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  article :global(.code-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  article :global(.code-lang) {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  article :global(.code-copy) {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.4);
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  article :global(.code-copy):hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  article :global(.code-block pre) {
+    padding: 24px;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  article :global(.code-block code) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e2dfd9;
+  }
+
+  /* ── Separator ── */
+  article :global(hr) {
+    border: none;
+    margin: 56px auto;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  /* ── Emphasis styling ── */
+  article :global(em) {
+    font-style: italic;
+    color: var(--accent);
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05em;
+  }
+
+  /* ── Links ── */
+  article :global(a:not(.tag)) {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232, 86, 58, 0.3);
+    transition: border-color 0.2s;
+  }
+
+  article :global(a:not(.tag)):hover {
+    border-bottom-color: var(--accent);
+  }
+
+  /* ── Tags ── */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tag {
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface-alt);
+    color: var(--ink);
+    padding: 8px 16px;
+    border-radius: 100px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .tag:hover {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+
+  /* ── Bottom author card ── */
+  article :global(.author-card) {
+    margin-top: 56px;
+    padding: 40px 32px;
+    background: var(--surface-alt);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  article :global(.author-card .avatar) {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #f4a261);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 28px;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  article :global(.author-card .info .name) {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  article :global(.author-card .info .bio) {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    max-width: 360px;
+  }
+
+  article :global(.follow-btn) {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--ink);
+    color: var(--surface);
+    border: none;
+    border-radius: 100px;
+    padding: 8px 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+  }
+
+  article :global(.follow-btn):hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(232, 86, 58, 0.25);
+  }
+
+  /* ── Toolbar (reactions) ── */
+  article :global(.toolbar) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 24px 0;
+    margin-bottom: 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  article :global(.toolbar-action) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    padding: 8px 16px;
+    border-radius: 100px;
+    transition: all 0.2s;
+  }
+
+  article :global(.toolbar-action):hover {
+    background: var(--surface-alt);
+    color: var(--ink);
+  }
+
+  article :global(.toolbar-action svg) {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+  }
+
+  /* ── Footer max-width override ── */
+  :global(footer) {
+    max-width: 800px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 720px) {
+    .hero { padding: 48px 24px 0; }
+    .hero h1 { font-size: 36px; }
+    .hero .subtitle { font-size: 17px; }
+    .hero-image { padding: 0 24px; }
+    article { padding: 40px 24px 64px; }
+    article :global(p), article :global(ol li) { font-size: 17px; }
+    article :global(h2) { font-size: 24px; }
+    article :global(blockquote) { padding: 24px; }
+    article :global(.author-card) { padding: 32px 24px; }
+  }
+</style>

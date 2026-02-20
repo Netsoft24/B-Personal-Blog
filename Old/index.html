@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Slow Dispatch — A Blog About Doing Less, Better</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #1a1a2e;
+      --muted: #6b7094;
+      --accent: #e8563a;
+      --surface: #faf9f7;
+      --surface-alt: #f0eeea;
+      --border: #e2dfd9;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--surface);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── Top nav ── */
+    nav {
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(250, 249, 247, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-style: italic;
+      color: var(--ink);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    nav .logo:hover { color: var(--accent); }
+
+    nav .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    nav .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    nav .nav-links a:hover { color: var(--ink); }
+    nav .nav-links a.active { color: var(--ink); }
+
+    /* ── Hero section ── */
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 80px 32px 48px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      color: var(--ink);
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero .tagline {
+      font-size: 20px;
+      color: var(--muted);
+      max-width: 536px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Category filter bar ── */
+    .category-bar {
+      max-width: 900px;
+      margin: 0 auto 48px;
+      padding: 0 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .category-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--surface-alt);
+      color: var(--ink);
+      padding: 8px 24px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .category-pill:hover {
+      background: var(--ink);
+      color: var(--surface);
+      border-color: var(--ink);
+    }
+
+    .category-pill.active {
+      background: var(--ink);
+      color: var(--surface);
+      border-color: var(--ink);
+    }
+
+    /* ── Post grid ── */
+    .post-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .post-card {
+      text-decoration: none;
+      color: inherit;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--border);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .post-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(26, 26, 46, 0.08);
+    }
+
+    .post-card .thumbnail {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
+
+    .post-card .card-body {
+      padding: 24px;
+    }
+
+    .post-card .card-category {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(232, 86, 58, 0.08);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+
+    .post-card h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .post-card .excerpt {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .post-card .card-author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .post-card .card-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #f4a261);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .post-card .card-author-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .post-card .card-author-meta {
+      color: var(--muted);
+    }
+
+    .post-card .card-author-meta .dot {
+      display: inline-block;
+      width: 3px;
+      height: 3px;
+      background: var(--muted);
+      border-radius: 50%;
+      vertical-align: middle;
+      margin: 0 8px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 48px 32px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      .hero { padding: 48px 24px 32px; }
+      .hero h1 { font-size: 36px; }
+      .hero .tagline { font-size: 17px; }
+      .category-bar { padding: 0 24px; margin-bottom: 32px; }
+      .post-grid {
+        grid-template-columns: 1fr;
+        padding: 0 24px 64px;
+        gap: 24px;
+      }
+      nav .nav-links { gap: 16px; }
+      nav .nav-links a { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a href="index.html" class="logo">the slow dispatch</a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Essays</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="#">Subscribe</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>Thoughts on living<br>&amp; working <em>with less</em></h1>
+    <p class="tagline">Essays on mindful design, slow productivity, and the beauty of doing fewer things better.</p>
+  </header>
+
+  <!-- Category filter -->
+  <div class="category-bar">
+    <span class="category-pill active">All</span>
+    <span class="category-pill">Mindful Design</span>
+    <span class="category-pill">Productivity</span>
+    <span class="category-pill">Code</span>
+    <span class="category-pill">Slow Living</span>
+  </div>
+
+  <!-- Post grid -->
+  <div class="post-grid">
+
+    <a href="blog-post.html" class="post-card">
+      <img class="thumbnail" src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&q=80" alt="A clean desk with a notebook and coffee">
+      <div class="card-body">
+        <span class="card-category">Mindful Design</span>
+        <h2>The Art of Doing Less &mdash; And Why It Matters</h2>
+        <p class="excerpt">A quiet case for subtraction in a world addicted to more. What if the most productive thing you could do today was to stop?</p>
+        <div class="card-author">
+          <div class="card-avatar">B</div>
+          <div>
+            <div class="card-author-name">Brandon Ellis</div>
+            <div class="card-author-meta">Feb 20, 2026 <span class="dot"></span> 5 min read</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a href="blog-post.html" class="post-card">
+      <img class="thumbnail" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80" alt="Serene mountain landscape">
+      <div class="card-body">
+        <span class="card-category">Slow Living</span>
+        <h2>Finding Stillness in a World That Won't Stop Moving</h2>
+        <p class="excerpt">On silence, empty afternoons, and the Japanese concept of ma &mdash; the purposeful pause between things.</p>
+        <div class="card-author">
+          <div class="card-avatar">B</div>
+          <div>
+            <div class="card-author-name">Brandon Ellis</div>
+            <div class="card-author-meta">Feb 14, 2026 <span class="dot"></span> 4 min read</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a href="blog-post.html" class="post-card">
+      <img class="thumbnail" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80" alt="Laptop with code on screen">
+      <div class="card-body">
+        <span class="card-category">Code</span>
+        <h2>Write Less Code, Ship More Value</h2>
+        <p class="excerpt">The best engineers aren't the ones who write the most code. They're the ones who know what not to build.</p>
+        <div class="card-author">
+          <div class="card-avatar">B</div>
+          <div>
+            <div class="card-author-name">Brandon Ellis</div>
+            <div class="card-author-meta">Feb 8, 2026 <span class="dot"></span> 7 min read</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a href="blog-post.html" class="post-card">
+      <img class="thumbnail" src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&q=80" alt="Minimal notebook and pen">
+      <div class="card-body">
+        <span class="card-category">Productivity</span>
+        <h2>The Three-Task Day: A Framework for Focus</h2>
+        <p class="excerpt">Forget the endless to-do list. Pick three things. Do them well. Go home. Here's why it works.</p>
+        <div class="card-author">
+          <div class="card-avatar">B</div>
+          <div>
+            <div class="card-author-name">Brandon Ellis</div>
+            <div class="card-author-meta">Jan 30, 2026 <span class="dot"></span> 6 min read</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a href="blog-post.html" class="post-card">
+      <img class="thumbnail" src="https://images.unsplash.com/photo-1493238792000-8113da705763?w=600&q=80" alt="Soft morning light through window">
+      <div class="card-body">
+        <span class="card-category">Mindful Design</span>
+        <h2>Designing for Calm: Interfaces That Breathe</h2>
+        <p class="excerpt">What happens when we design software the way architects design temples &mdash; with silence as a feature?</p>
+        <div class="card-author">
+          <div class="card-avatar">B</div>
+          <div>
+            <div class="card-author-name">Brandon Ellis</div>
+            <div class="card-author-meta">Jan 22, 2026 <span class="dot"></span> 5 min read</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <a href="blog-post.html" class="post-card">
+      <img class="thumbnail" src="https://images.unsplash.com/photo-1432821596592-e2c18b78144f?w=600&q=80" alt="Writing desk with coffee">
+      <div class="card-body">
+        <span class="card-category">Slow Living</span>
+        <h2>A Letter to My Future Self About Pace</h2>
+        <p class="excerpt">Somewhere between ambition and burnout there's a speed that actually works. Notes on finding it.</p>
+        <div class="card-author">
+          <div class="card-avatar">B</div>
+          <div>
+            <div class="card-author-name">Brandon Ellis</div>
+            <div class="card-author-meta">Jan 15, 2026 <span class="dot"></span> 3 min read</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2026 The Slow Dispatch. All rights reserved.
+  </footer>
+
+</body>
+</html>
